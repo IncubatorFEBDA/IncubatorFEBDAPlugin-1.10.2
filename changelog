@@ -1,0 +1,3 @@
+release 1.3.162
+	- Fixed bug: unable to move even after login or registration.
+	- Added command: //version

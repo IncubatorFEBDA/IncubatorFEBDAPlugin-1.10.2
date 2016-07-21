@@ -1,0 +1,69 @@
+name: CxfredeperPlugin
+main: com.outlook.cxfredeper1.PluginMain
+version: 1.3.171
+
+commands:
+   /tp:
+      description: Alternative TP command.
+      usage: //tp [PlayerA] <PlayerB>
+      permission-required: false
+      
+   /home:
+      description: tp to your home set by //sethome command.
+      usage: //home
+      permission-required: false
+   
+   /sethome:
+      description: Set your home for //home command.
+      usage: //sethome
+      permission-required: false
+      
+   /back:
+      description: Back to your last tp position.
+      usage: //back
+      permission-required: false
+      
+   /broadcast:
+      description: Set the message to broadcast.
+      usage: //broadcast add [Message] [Interval]  //broadcast stop [ID]  //broadcast list
+      permission-required: true
+
+   /login:
+      description: Login your account.
+      usage: //login [Password]
+      permission-required: false
+      
+   /register:
+      description: Register your account.
+      usage: //register [Password] [Re-enter Password]
+      permission-required: false
+      
+   /setwaypoint:
+      description: Set a waypoint you can teleport to.
+      usage: //setwaypoint [Name]
+      permission-required: false
+
+   /delwaypoint:
+      description: Delete a waypoint.
+      usage: //delwaypoint [Name]
+      permission-required: false
+
+   /waypoint:
+      description: teleport to a waypoint.
+      usage: //waypoint [Name]
+      permission-required: false
+      
+   /waypoints:
+      description: List all your waypoints.
+      usage: //waypoints
+      permission-required: false
+      
+   /version:
+      description: Get the version of the CxfredeperPlugin running.
+      usage: /version
+      permission-required: false
+      
+   stop:
+      description: Overriden /stop command. Should never work for a player.
+      usage: /stop
+      permission-required: true
