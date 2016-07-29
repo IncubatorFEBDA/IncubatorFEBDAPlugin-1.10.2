@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Filter;
 import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
@@ -45,14 +44,17 @@ import com.gmail.gengchenliu0.Enigma;
 
 public class PluginMain extends JavaPlugin implements Listener {
 	
-	private String verString = "CxfredeperPlugin 1.3.162";
+	private String verString = "CxfredeperPlugin 1.3.171";
 	
 	private Map<String, Location> tpLocs = new HashMap<String, Location>();
 	private Map<String, PlayerInfoContainer> playerInfos = new HashMap<String, PlayerInfoContainer>();
+	private Map<Integer, String> messages = new HashMap<Integer, String>();
 	private List<String> logedinPlayers = new ArrayList<String>();
 	private List<String> registeredPlayers = new ArrayList<String>();
-	private long interval; //20 ticks = 1 sec (in general)
-	private List<String> messages = new ArrayList<String>();
+	//20 ticks = 1 sec (in general)
+	//note that the actual time may vary due to the server's workload.
+	//high workload -> slow server -> longer ticks
+	private long interval;
 	private BukkitScheduler scheduler = getServer().getScheduler();
 	private int broadcastID;
 	private static String message = "";
@@ -153,7 +155,7 @@ public class PluginMain extends JavaPlugin implements Listener {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player player = null;
-		List<String> argsL = null;
+		List<String> argsL = new ArrayList<String>(Arrays.asList(args));
 		String playerID = null;
 		PlayerInfoContainer playerInfo = new PlayerInfoContainer();
 		Boolean senderIsPlayer = sender instanceof Player;
@@ -161,7 +163,6 @@ public class PluginMain extends JavaPlugin implements Listener {
 		
 		if (senderIsPlayer) {
 			player = (Player) sender;
-			argsL = new ArrayList<String>(Arrays.asList(args));
 			playerID = player.getName();
 			playerInfo = playerInfos.get(playerID);
 			//if the player haven't register, playerInfo will be null
@@ -248,7 +249,8 @@ public class PluginMain extends JavaPlugin implements Listener {
 		}
 		
 		else if (commandString.equals("/broadcast")) {
-			if (args.length == 0) return false;
+			if (args.length == 0)
+				return false;
 			
 			else if (argsL.get(0).equalsIgnoreCase("add")) {
 				argsL.remove(0);
@@ -258,33 +260,31 @@ public class PluginMain extends JavaPlugin implements Listener {
 					message = message.concat(arg + " ");
 				}
 				broadcastID = scheduler.scheduleSyncRepeatingTask(this, new Runnable() {
-					String message = PluginMain.message;
-					
+					String broadcastMessage = message;
 					@Override
 					public void run() {
 						Bukkit.getServer().getLogger().info("Timer Ran");
-						Bukkit.getServer().broadcastMessage(ChatColor.BLUE + "<Broadcast> " + message);
+						Bukkit.getServer().broadcastMessage(ChatColor.BLUE + "<Broadcast> " + broadcastMessage);
 					}
 		        }, 0l, interval * 20);
 				sender.sendMessage("Message set: " + message + "\nRepeating every " + interval + " second(s)");
 				sender.sendMessage("Broadcast ID: " + broadcastID);
 				
-				messages.add(message + "|>|<|" + broadcastID);
+				messages.put(new Integer(broadcastID), message);
 				return true;
 			}
+			
 			else if (argsL.get(0).equalsIgnoreCase("stop")) {
-				String id = argsL.get(1);
-				scheduler.cancelTask(Integer.parseInt(id));
-				sender.sendMessage("Broadcast " + id + " stoped.");
-				for (int i=0; i<messages.size(); i++) {
-					int index = scan(messages.get(i), "|>|<|");
-					if (messages.get(i).substring(index).equals(id)) messages.remove(i);
-				}
+				Integer id = Integer.valueOf(argsL.get(1));
+				scheduler.cancelTask(id);
+				sender.sendMessage("Broadcast " + id + " stopped.");
+				messages.remove(id);
 				return true;
 			}
+			
 			else if (argsL.get(0).equalsIgnoreCase("list")) {
-				for (String s : messages) {
-					sender.sendMessage("Message: " + s.replace("|>|<|", " ID: "));
+				for (Integer i : messages.keySet()) {
+					sender.sendMessage("ID: " + i + ", Message: " + messages.get(i));
 				}
 				sender.sendMessage("There are " + messages.size() + " broadcasts ongoing.");
 				return true;

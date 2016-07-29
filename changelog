@@ -1,3 +1,7 @@
 release 1.3.162
 	- Fixed bug: unable to move even after login or registration.
 	- Added command: //version
+
+release 1.3.171
+	- Optimized the //broadcast command.
+	- Commands can be now issued from the server console.
