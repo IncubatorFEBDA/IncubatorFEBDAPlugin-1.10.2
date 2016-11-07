@@ -36,15 +36,9 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import com.outlook.cxfredeper1.Enigma;
 
-/* TO DO LIST
- * combine info to one file
- * game mode save
- * way points
- */
-
 public class PluginMain extends JavaPlugin implements Listener {
 	
-	private String verString = "CxfredeperPlugin 1.3.171";
+	private String verString = "IncubatorFEBDA Plugin v1.0";
 	
 	private Map<String, Location> tpLocs = new HashMap<String, Location>();
 	private Map<String, PlayerInfoContainer> playerInfos = new HashMap<String, PlayerInfoContainer>();
@@ -58,7 +52,7 @@ public class PluginMain extends JavaPlugin implements Listener {
 	private BukkitScheduler scheduler = getServer().getScheduler();
 	private int broadcastID;
 	private static String message = "";
-	private Path filePath = Paths.get("plugins/cxfredeperPluginData/cxfredeperPluginData");
+	private Path filePath = Paths.get("plugins/IncubatorFEBDAPlugin/IncubatorPluginData");
 	private BufferedReader fileReader;
 	private BufferedWriter fileWriter;
 	private Server server = this.getServer();
@@ -72,15 +66,15 @@ public class PluginMain extends JavaPlugin implements Listener {
         server.getPluginManager().registerEvents(this, this);
         server.getPluginManager().registerEvents(ec, this);
         //create directories
-        Path pluginHomeDir = Paths.get("plugins/cxfredeperPluginData");
+        Path pluginHomeDir = Paths.get("plugins/IncubatorFEBDAPlugin");
         if (!Files.exists(pluginHomeDir)) {
 			try {
-				logger.info("Directory '\\plugins\\cxfredeperPluginData' not found. Creating.");
+				logger.info("Directory '\\plugins\\IncubatorFEBDAPlugin' not found. Creating.");
 				Files.createDirectories(pluginHomeDir);
 			} catch (IOException e) {
-				logger.info("Could not create 'cxfredeperPluginData' directory. Here's the stack trace:");
+				logger.info("Could not create 'IncubatorFEBDAPlugin' directory. Here's the stack trace:");
 				e.printStackTrace();
-				logger.info("You may want to create the directory '\\plugins\\cxfredeperPluginData' on your own.");
+				logger.info("You may want to create the directory '\\plugins\\IncubatorFEBDAPlugin' manually.");
 			}
         }
         
@@ -89,17 +83,17 @@ public class PluginMain extends JavaPlugin implements Listener {
 			fileReader = Files.newBufferedReader(filePath, Charset.forName("UTF-8"));
 			readPlayerInfo();
 		} catch (NoSuchFileException ex0) {
-			logger.info("File 'cxfredeperPluginData' not found. Creating.");
+			logger.info("File 'IncubatorPluginData' not found. Creating.");
 			try {
 				fileWriter = Files.newBufferedWriter(filePath, Charset.forName("UTF-8"));
 				fileReader = Files.newBufferedReader(filePath, Charset.forName("UTF-8"));
 				readPlayerInfo();
 			} catch (IOException ex00) {
-				logger.info("Failed to create 'cxfredeperPluginData'. Here's the stack trace:");
+				logger.info("Failed to create 'IncubatorPluginData'. Here's the stack trace:");
 				ex00.printStackTrace();
 			}
 		} catch (IOException ex1) {
-			logger.info("Failed to read 'cxfredeperPluginData'. Here's the stack trace:");
+			logger.info("Failed to read 'IncubatorPluginData'. Here's the stack trace:");
 			ex1.printStackTrace();
 		}
 		
@@ -119,7 +113,7 @@ public class PluginMain extends JavaPlugin implements Listener {
 			handler.setFilter(filter);
 		}
 		
-		logger.info("CxfredeperPlugin Enabled.");
+		logger.info("IncubatorFEBDA Plugin Enabled.");
     }
     
     @Override
@@ -136,7 +130,7 @@ public class PluginMain extends JavaPlugin implements Listener {
 	    		try {
 					writePlayerInfo(playerInfo);
 				} catch (IOException e) {
-					logger.info("Failed to save player information to 'cxfredeperPluginData'. Here's the stack trace:");
+					logger.info("Failed to save player information to 'IncubatorPluginData'. Here's the stack trace:");
 					e.printStackTrace();
 				}
     		}
@@ -149,7 +143,7 @@ public class PluginMain extends JavaPlugin implements Listener {
 			logger.info("IOException Caught. Here's the stack trace:");
 			e.printStackTrace();
 		}
-    	logger.info("CxfredeperPlugin Disabled.");
+    	logger.info("IncubatorFEBDA Plugin Disabled.");
     }
 
 	@Override
@@ -553,11 +547,10 @@ public class PluginMain extends JavaPlugin implements Listener {
 			}
 		}
 		
-		if (playerName.equals("cxfredeper"))
-			player.sendMessage(ChatColor.YELLOW + "Hi cxfredeper, this server is running your plugin!");
+		if (playerName.equals("Incubator"))
+			player.sendMessage(ChatColor.YELLOW + "Hi Incubator, this server is running your plugin!");
 		else 
-			player.sendMessage(ChatColor.YELLOW + "Welcome " + playerName + "!"
-				+ " This server is running cxfredeper's plugin!");
+			player.sendMessage(ChatColor.YELLOW + "Welcome, " + playerName + "!");
     }
 	
 	@EventHandler
@@ -576,10 +569,10 @@ public class PluginMain extends JavaPlugin implements Listener {
 	
 	@EventHandler
 	public void onPlayerDeathEvent(EntityDeathEvent e) {
-		Player placeHolderPlayer;
+		Player player;
 		if (e.getEntity() instanceof Player) {
-			placeHolderPlayer = (Player) e.getEntity();
-			tpLocs.put(placeHolderPlayer.getName(), placeHolderPlayer.getLocation());
+			player = (Player) e.getEntity();
+			tpLocs.put(player.getName(), player.getLocation());
 		}
 	}
 }
