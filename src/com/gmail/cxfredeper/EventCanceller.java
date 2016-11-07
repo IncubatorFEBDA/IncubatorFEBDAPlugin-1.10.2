@@ -1,4 +1,4 @@
-package com.outlook.cxfredeper1;
+package com.gmail.cxfredeper;
 
 import java.util.ArrayList;
 import java.util.List;

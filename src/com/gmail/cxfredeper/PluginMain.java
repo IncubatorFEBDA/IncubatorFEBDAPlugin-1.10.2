@@ -1,4 +1,4 @@
-package com.outlook.cxfredeper1;
+package com.gmail.cxfredeper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -34,7 +34,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import com.gmail.gengchenliu0.Enigma;
+import com.outlook.cxfredeper1.Enigma;
 
 /* TO DO LIST
  * combine info to one file
@@ -174,79 +174,197 @@ public class PluginMain extends JavaPlugin implements Listener {
 			}
 		}
 
-		if (commandString.equals("/tp") && senderIsPlayer) {
-			
-			for (String i : args) {
-				if (!logedinPlayers.contains(sender.getServer().getPlayer(i))) {
-					sender.sendMessage(ChatColor.RED + "Player offline or does not exist.");
+		//If we have a player
+		if (senderIsPlayer) {
+			//then check for these commands
+			if (commandString.equals("/tp")) {
+				
+				for (String i : args) {
+					if (!logedinPlayers.contains(sender.getServer().getPlayer(i))) {
+						sender.sendMessage(ChatColor.RED + "Player offline or does not exist.");
+						return true;
+					}
+				}
+				
+				if (args.length == 2) {
+					Player playerI = server.getPlayer(args[0]);
+					Player playerT = server.getPlayer(args[1]);
+					tpLocs.put(playerI.getName(), playerI.getLocation());
+					playerI.teleport(playerT);
 					return true;
 				}
+				
+				else if (args.length == 1) {
+					Player playerT = server.getPlayer(args[0]);
+					tpLocs.put(playerID, player.getLocation());
+					player.teleport(playerT);
+					return true;
+				}
+				return false;
 			}
 			
-			if (args.length == 2) {
-				Player playerI = server.getPlayer(args[0]);
-				Player playerT = server.getPlayer(args[1]);
-				tpLocs.put(playerI.getName(), playerI.getLocation());
-				playerI.teleport(playerT);
-				return true;
-			}
-			
-			else if (args.length == 1) {
-				Player playerT = server.getPlayer(args[0]);
-				tpLocs.put(playerID, player.getLocation());
-				player.teleport(playerT);
-				return true;
-			}
-			return false;
-		}
-		
-		else if (commandString.equals("/sethome") && senderIsPlayer) {
-			Location loc = player.getLocation();
-			playerInfo.setHomeLoc(loc);
-			playerInfos.put(playerID, playerInfo);
-			player.setBedSpawnLocation(loc);
-			player.sendMessage(ChatColor.GREEN + "//sethome command executed: home set at "
-					+ Double.toString(loc.getX()) + ", "
-					+ Double.toString(loc.getY()) + ", "
-					+ Double.toString(loc.getZ()));
-			return true;
-		}
-		
-		else if (commandString.equals("/home") && senderIsPlayer) {		
-			try {
-				tpLocs.put(playerID, player.getLocation());
-				Location homeLoc = playerInfo.getHomeLoc();
-				player.teleport(homeLoc);
-				player.sendMessage(ChatColor.GREEN + "//home command executed: teleported " + playerID + " to " 
-						+ Double.toString(homeLoc.getX()) + ", "
-						+ Double.toString(homeLoc.getY()) + ", "
-						+ Double.toString(homeLoc.getZ()));
-			}
-			
-			catch (NullPointerException e) {
-				player.sendMessage(ChatColor.RED + "NullPointerException: " + e.getMessage());
-				player.sendMessage(ChatColor.YELLOW + "Please use //sethome before using //home");
-			}
-			return true;
-		}
-		
-		else if (commandString.equals("/back") && senderIsPlayer) {
-			try {
+			else if (commandString.equals("/sethome")) {
 				Location loc = player.getLocation();
-				player.teleport(tpLocs.get(playerID));
-				tpLocs.put(playerID, loc);
-				player.sendMessage(ChatColor.GREEN + "//back command executed: teleported " + playerID + " to " 
+				playerInfo.setHomeLoc(loc);
+				playerInfos.put(playerID, playerInfo);
+				player.setBedSpawnLocation(loc);
+				player.sendMessage(ChatColor.GREEN + "//sethome command executed: home set at "
+						+ Double.toString(loc.getX()) + ", "
+						+ Double.toString(loc.getY()) + ", "
+						+ Double.toString(loc.getZ()));
+				return true;
+			}
+			
+			else if (commandString.equals("/home")) {		
+				try {
+					tpLocs.put(playerID, player.getLocation());
+					Location homeLoc = playerInfo.getHomeLoc();
+					player.teleport(homeLoc);
+					player.sendMessage(ChatColor.GREEN + "//home command executed: teleported " + playerID + " to " 
+							+ Double.toString(homeLoc.getX()) + ", "
+							+ Double.toString(homeLoc.getY()) + ", "
+							+ Double.toString(homeLoc.getZ()));
+				}
+				
+				catch (NullPointerException e) {
+					player.sendMessage(ChatColor.RED + "NullPointerException: " + e.getMessage());
+					player.sendMessage(ChatColor.YELLOW + "Please use //sethome before using //home");
+				}
+				return true;
+			}
+			
+			else if (commandString.equals("/back")) {
+				try {
+					Location loc = player.getLocation();
+					player.teleport(tpLocs.get(playerID));
+					tpLocs.put(playerID, loc);
+					player.sendMessage(ChatColor.GREEN + "//back command executed: teleported " + playerID + " to " 
+								+ Double.toString(loc.getX()) + ", "
+								+ Double.toString(loc.getY()) + ", "
+								+ Double.toString(loc.getZ()));
+				}
+				catch (NullPointerException e) {
+					player.sendMessage(ChatColor.RED + "NullPointerException: " + e.getMessage());
+					player.sendMessage(ChatColor.YELLOW + "Please use //home or //tp before using //back.");
+				}
+				finally{}
+				return true;
+			}
+			
+			else if (commandString.equals("/register")) {
+				if (args.length != 2)
+					return false;
+				if (registeredPlayers.contains(playerID)) {
+					sender.sendMessage(ChatColor.RED + "You have already registered. Please use //login to login.");
+					return true;
+				}
+				if (args[0].equals(args[1])) {
+					//now, the player must had issued a valid register command and is a unregistered player
+					String password = args[0];
+					if (password.length() >= 5) {
+						registeredPlayers.add(playerID);
+						//construct the playerInfo
+						playerInfo.setPassword(args[0]);
+						playerInfos.put(playerID, playerInfo);
+						ec.freezedPlayers.remove(playerID);
+						player.setGameMode(GameMode.SURVIVAL);
+						sender.sendMessage(ChatColor.ITALIC + "You have registered.");
+					}
+					else
+						sender.sendMessage(ChatColor.RED + "Your password is too short, it must have at least 5 characters.");
+				}
+				else 
+					sender.sendMessage(ChatColor.RED + "The passwords you entered are different. Please enter again.");
+				return true;
+			}
+			
+			else if (commandString.equals("/login")) {
+				if (args.length != 1)
+					return false;
+				else if (logedinPlayers.contains(playerID))
+					sender.sendMessage(ChatColor.RED + "You have already logged in.");
+				else if (!registeredPlayers.contains(playerID))
+					sender.sendMessage(ChatColor.RED + "You must register first. Please use //register to register your account.");
+				else if (playerInfo.getPassword().equals(args[0])) {
+					logedinPlayers.add(playerID);
+					ec.freezedPlayers.remove(playerID);
+					player.setGameMode(playerInfo.getGamemode());
+					sender.sendMessage(ChatColor.ITALIC + "You have logged in.");
+				}
+				else
+					sender.sendMessage(ChatColor.RED + "Incorrect password, please try again.");
+				return true;
+			}
+			
+			//waypoint related
+			else if (commandString.equals("/waypoint")) {
+				if (args.length == 1) {
+					Location loc = playerInfo.getWayPoint(args[0]);
+					if (loc == null) {
+						sender.sendMessage(ChatColor.RED + "You must set the waypoint first. Please use //setwaypoint to set a waypoint.");
+						return true;
+					}
+					tpLocs.put(playerID, player.getLocation());
+					player.teleport(loc);
+					player.sendMessage(ChatColor.GREEN + "//waypoint command executed: teleported " + playerID + " to " 
 							+ Double.toString(loc.getX()) + ", "
 							+ Double.toString(loc.getY()) + ", "
 							+ Double.toString(loc.getZ()));
+					return true;
+				}
+				return false;
 			}
-			catch (NullPointerException e) {
-				player.sendMessage(ChatColor.RED + "NullPointerException: " + e.getMessage());
-				player.sendMessage(ChatColor.YELLOW + "Please use //home or //tp before using //back.");
+			
+			else if (commandString.equals("/waypoints")) {
+				Map<String, Location> wayPoints = playerInfo.getWayPoints();
+				if (wayPoints.size() == 0) {
+					player.sendMessage(ChatColor.YELLOW + "You haven't set any waypoint.\nUse the //setwaypoint command to set a waypoint.");
+					return true;
+				}
+				player.sendMessage(ChatColor.YELLOW + "---Here's a list of your waypoint(s)---\n");
+				for (String id : wayPoints.keySet()) {
+					Location wayPoint = wayPoints.get(id);
+					player.sendMessage(ChatColor.YELLOW + id + " : "
+							+ wayPoint.getBlockX() + ", " + wayPoint.getBlockY() + ", " + wayPoint.getBlockZ());
+				}
+				return true;
 			}
-			finally{}
-			return true;
+			
+			else if (commandString.equals("/setwaypoint")) {
+				if (args.length == 1) {
+					String id = args[0];
+					Location loc = player.getLocation();
+					playerInfo.putWayPoint(id, loc);
+					player.sendMessage(ChatColor.GREEN + "Waypoint set.\n" + id + " : "
+							+ loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ());
+					return true;
+				}
+				return false;
+			}
+	
+			else if (commandString.equals("/delwaypoint")) {
+				if (args.length == 1) {
+					String id = args[0];
+					Location wayPoint = playerInfo.delWayPoint(id);
+					//if there is no such waypoint
+					if (wayPoint == null) {
+						player.sendMessage(ChatColor.RED + "No such waypoint: " + id
+								+ ". Please confirm your waypoint id is correct.\n"
+								+ "You can see a list of all your waypoints with //waypoints command.");
+						return true;
+					}
+					player.sendMessage(ChatColor.YELLOW + "Way point \"" + id + "\" deleted.");
+					return true;
+				}
+				return false;
+			}
+			
+			//in the end, update playerInfo to playerInfos
+			playerInfos.put(playerID, playerInfo);
 		}
+		//end senderIsPlayer
+		//if the sender is not a player (sent from the console)
+		//the above is skipped, check for the following commands only
 		
 		else if (commandString.equals("/broadcast")) {
 			if (args.length == 0)
@@ -291,114 +409,6 @@ public class PluginMain extends JavaPlugin implements Listener {
 			}
 		}
 		
-		else if (commandString.equals("/register") && senderIsPlayer) {
-			if (args.length != 2)
-				return false;
-			if (registeredPlayers.contains(playerID)) {
-				sender.sendMessage(ChatColor.RED + "You have already registered. Please use //login to login.");
-				return true;
-			}
-			if (args[0].equals(args[1])) {
-				//now, the player must had issued a valid register command and is a unregistered player
-				String password = args[0];
-				if (password.length() >= 5) {
-					registeredPlayers.add(playerID);
-					//construct the playerInfo
-					playerInfo.setPassword(args[0]);
-					playerInfos.put(playerID, playerInfo);
-					ec.freezedPlayers.remove(playerID);
-					player.setGameMode(GameMode.SURVIVAL);
-					sender.sendMessage(ChatColor.ITALIC + "You have registered.");
-				}
-				else
-					sender.sendMessage(ChatColor.RED + "Your password is too short, it must have at least 5 characters.");
-			}
-			else 
-				sender.sendMessage(ChatColor.RED + "The passwords you entered are different. Please enter again.");
-			return true;
-		}
-		
-		else if (commandString.equals("/login") && senderIsPlayer) {
-			if (args.length != 1)
-				return false;
-			else if (logedinPlayers.contains(playerID))
-				sender.sendMessage(ChatColor.RED + "You have already logged in.");
-			else if (!registeredPlayers.contains(playerID))
-				sender.sendMessage(ChatColor.RED + "You must register first. Please use //register to register your account.");
-			else if (playerInfo.getPassword().equals(args[0])) {
-				logedinPlayers.add(playerID);
-				ec.freezedPlayers.remove(playerID);
-				player.setGameMode(playerInfo.getGamemode());
-				sender.sendMessage(ChatColor.ITALIC + "You have logged in.");
-			}
-			else
-				sender.sendMessage(ChatColor.RED + "Incorrect password, please try again.");
-			return true;
-		}
-		
-		//waypoint related
-		else if (commandString.equals("/waypoint") && senderIsPlayer) {
-			if (args.length == 1) {
-				Location loc = playerInfo.getWayPoint(args[0]);
-				if (loc == null) {
-					sender.sendMessage(ChatColor.RED + "You must set the waypoint first. Please use //setwaypoint to set a waypoint.");
-					return true;
-				}
-				tpLocs.put(playerID, player.getLocation());
-				player.teleport(loc);
-				player.sendMessage(ChatColor.GREEN + "//waypoint command executed: teleported " + playerID + " to " 
-						+ Double.toString(loc.getX()) + ", "
-						+ Double.toString(loc.getY()) + ", "
-						+ Double.toString(loc.getZ()));
-				return true;
-			}
-			return false;
-		}
-		
-		else if (commandString.equals("/waypoints") && senderIsPlayer) {
-			Map<String, Location> wayPoints = playerInfo.getWayPoints();
-			if (wayPoints.size() == 0) {
-				player.sendMessage(ChatColor.YELLOW + "You haven't set any waypoint.\nUse the //setwaypoint command to set a waypoint.");
-				return true;
-			}
-			player.sendMessage(ChatColor.YELLOW + "---Here's a list of your waypoint(s)---\n");
-			for (String id : wayPoints.keySet()) {
-				Location wayPoint = wayPoints.get(id);
-				player.sendMessage(ChatColor.YELLOW + id + " : "
-						+ wayPoint.getBlockX() + ", " + wayPoint.getBlockY() + ", " + wayPoint.getBlockZ());
-			}
-			return true;
-		}
-		
-		else if (commandString.equals("/setwaypoint") && senderIsPlayer) {
-			if (args.length == 1) {
-				String id = args[0];
-				Location loc = player.getLocation();
-				playerInfo.putWayPoint(id, loc);
-				player.sendMessage(ChatColor.GREEN + "Waypoint set.\n" + id + " : "
-						+ loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ());
-				return true;
-			}
-			return false;
-		}
-
-		else if (commandString.equals("/delwaypoint") && senderIsPlayer) {
-			if (args.length == 1) {
-				String id = args[0];
-				Location wayPoint = playerInfo.delWayPoint(id);
-				//if there is no such waypoint
-				if (wayPoint == null) {
-					player.sendMessage(ChatColor.RED + "No such waypoint: " + id
-							+ ". Please confirm your waypoint id is correct.\n"
-							+ "You can see a list of all your waypoints with //waypoints command.");
-					return true;
-				}
-				player.sendMessage(ChatColor.YELLOW + "Way point \"" + id + "\" deleted.");
-				return true;
-			}
-			return false;
-		}
-		
 		else if (commandString.equals("/version")) {
 			player.sendMessage(verString);
 			return true;
@@ -413,22 +423,9 @@ public class PluginMain extends JavaPlugin implements Listener {
 				server.shutdown();
 		}
 		
-		//in the end, update playerInfo to playerInfos
-		if (senderIsPlayer)
-			playerInfos.put(playerID, playerInfo);
-		
 		return false;
 	}
 
-	//the scan method, a tool used in the "broadcast" command
-	private int scan(String input, String pattern) {
-		for (int i=0; i<=input.length()-pattern.length(); i++) {
-			if (input.substring(i, i + pattern.length()).equals(pattern))
-				return i+pattern.length();
-		}
-		return -1;
-	}
-	
 	/* PLAYER INFO FORMAT
 	 * 01 username
 	 * 02 password
