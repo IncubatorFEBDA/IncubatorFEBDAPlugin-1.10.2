@@ -1,5 +1,5 @@
-name: CxfredeperPlugin
-main: com.outlook.cxfredeper1.PluginMain
+name: IncubatorFEBDAPlugin
+main: com.gmail.cxfredeper.PluginMain
 version: 1.3.171
 
 commands:
@@ -59,7 +59,7 @@ commands:
       permission-required: false
       
    /version:
-      description: Get the version of the CxfredeperPlugin running.
+      description: Get the version of the IncubatorFEBDAPlugin running.
       usage: /version
       permission-required: false
       
